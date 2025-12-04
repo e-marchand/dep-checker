@@ -1,0 +1,24 @@
+{
+  "name": "dep-checker",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "dep-checker": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "validate": "tsx src/index.ts --file github.txt",
+    "validate:verbose": "tsx src/index.ts --file github.txt --verbose"
+  },
+  "keywords": ["4d", "dependency", "validator", "github"],
+  "author": "",
+  "license": "ISC",
+  "description": "Validator for 4D Project Dependencies Manager",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

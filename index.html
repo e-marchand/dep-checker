@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4D Components Registry</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --border-color: #e0e0e0;
+      --accent-color: #0066cc;
+      --accent-hover: #0052a3;
+      --star-color: #f5a623;
+      --download-color: #28a745;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-card: #1f2942;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a0a0a0;
+      --border-color: #2d3748;
+      --accent-color: #4da6ff;
+      --accent-hover: #66b3ff;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Header */
+    .header {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      min-width: 200px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      transition: background-color 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--bg-primary);
+    }
+
+    /* Main content */
+    .main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      color: var(--text-secondary);
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Card */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+
+    .card-owner {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .card-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .stat-star { color: var(--star-color); }
+    .stat-download { color: var(--download-color); }
+
+    .card-version {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.85rem;
+    }
+
+    .version-tag {
+      display: inline-block;
+      background-color: var(--accent-color);
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .component-type {
+      display: inline-block;
+      background-color: var(--bg-secondary);
+      color: var(--text-secondary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+    }
+
+    /* Detail View */
+    .detail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      display: none;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .detail-overlay.active {
+      display: flex;
+    }
+
+    .detail-panel {
+      background-color: var(--bg-card);
+      border-radius: 16px;
+      max-width: 900px;
+      width: 100%;
+      max-height: calc(100vh - 4rem);
+      overflow-y: auto;
+      box-shadow: var(--shadow-hover);
+    }
+
+    .detail-header {
+      padding: 2rem;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      background-color: var(--bg-card);
+      z-index: 10;
+    }
+
+    .detail-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .detail-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      line-height: 1;
+      padding: 0.5rem;
+    }
+
+    .close-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .detail-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .detail-links {
+      margin-top: 1rem;
+    }
+
+    .detail-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent-color);
+      text-decoration: none;
+      margin-right: 1.5rem;
+    }
+
+    .detail-links a:hover {
+      text-decoration: underline;
+    }
+
+    .detail-content {
+      padding: 2rem;
+    }
+
+    .detail-section {
+      margin-bottom: 2rem;
+    }
+
+    .detail-section h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .releases-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .release-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background-color: var(--bg-secondary);
+      border-radius: 8px;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .release-tag {
+      font-weight: 600;
+    }
+
+    .release-date {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .release-downloads {
+      color: var(--download-color);
+      font-size: 0.85rem;
+    }
+
+    /* README */
+    .readme-content {
+      background-color: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .readme-content h1,
+    .readme-content h2,
+    .readme-content h3 {
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .readme-content h1:first-child {
+      margin-top: 0;
+    }
+
+    .readme-content p {
+      margin-bottom: 1rem;
+    }
+
+    .readme-content code {
+      background-color: var(--bg-primary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.9em;
+    }
+
+    .readme-content pre {
+      background-color: var(--bg-primary);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+
+    .readme-content pre code {
+      padding: 0;
+      background: none;
+    }
+
+    .readme-content a {
+      color: var(--accent-color);
+    }
+
+    .readme-content ul,
+    .readme-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .readme-content img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box {
+        max-width: none;
+      }
+
+      .main {
+        padding: 1rem;
+      }
+
+      .detail-panel {
+        margin: 0;
+        border-radius: 0;
+        max-height: 100vh;
+      }
+
+      .detail-overlay {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a class="logo" onclick="showGrid()">4D Components</a>
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search components..." autocomplete="off">
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <span id="theme-icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="grid" id="grid">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading components...</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+    <div class="detail-panel" onclick="event.stopPropagation()">
+      <div class="detail-header">
+        <div class="detail-header-top">
+          <h2 class="detail-title" id="detail-title"></h2>
+          <button class="close-btn" onclick="closeDetail()">&times;</button>
+        </div>
+        <p id="detail-description"></p>
+        <div class="detail-meta" id="detail-meta"></div>
+        <div class="detail-links" id="detail-links"></div>
+      </div>
+      <div class="detail-content">
+        <div class="detail-section">
+          <h3>Releases</h3>
+          <div class="releases-list" id="releases-list"></div>
+        </div>
+        <div class="detail-section">
+          <h3>README</h3>
+          <div class="readme-content" id="readme-content">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading README...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let data = null;
+    let filteredData = [];
+
+    // Theme management
+    function getPreferredTheme() {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    // Initialize theme
+    setTheme(getPreferredTheme());
+
+    // Listen for OS theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+
+    // Data loading
+    async function loadData() {
+      try {
+        const response = await fetch('index.json');
+        data = await response.json();
+        filteredData = data.results || [];
+        renderGrid();
+        renderStats();
+      } catch (error) {
+        document.getElementById('grid').innerHTML = `
+          <div class="empty-state">
+            <p>Failed to load components data.</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;">${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Calculate total downloads for a component
+    function getTotalDownloads(result) {
+      let total = 0;
+      for (const release of result.releases || []) {
+        if (release.githubRelease?.assets) {
+          for (const asset of release.githubRelease.assets) {
+            total += asset.download_count || 0;
+          }
+        }
+      }
+      return total;
+    }
+
+    // Get latest version
+    function getLatestVersion(result) {
+      if (result.releases && result.releases.length > 0) {
+        return result.releases[0].tagName;
+      }
+      return null;
+    }
+
+    // Get component type
+    function getComponentType(result) {
+      if (result.releases && result.releases.length > 0) {
+        return result.releases[0].componentType;
+      }
+      return null;
+    }
+
+    // Format number
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    // Render stats bar
+    function renderStats() {
+      const total = filteredData.length;
+      const valid = filteredData.filter(r => r.valid).length;
+      document.getElementById('stats-bar').innerHTML = `
+        <span>${total} component${total !== 1 ? 's' : ''}</span>
+        <span>${valid} valid</span>
+      `;
+    }
+
+    // Render grid
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+
+      if (filteredData.length === 0) {
+        grid.innerHTML = '<div class="empty-state">No components found.</div>';
+        return;
+      }
+
+      grid.innerHTML = filteredData.map((result, index) => {
+        const info = result.githubInfo || {};
+        const name = info.name || result.repository.split('/')[1];
+        const owner = result.repository.split('/')[0];
+        const description = info.description || 'No description available';
+        const stars = info.stargazers_count || 0;
+        const downloads = getTotalDownloads(result);
+        const version = getLatestVersion(result);
+        const componentType = getComponentType(result);
+        const initial = name.charAt(0).toUpperCase();
+
+        return `
+          <div class="card" onclick="showDetail(${index})">
+            <div class="card-header">
+              <div class="card-icon">${initial}</div>
+              <div>
+                <div class="card-title">${escapeHtml(name)}</div>
+                <div class="card-owner">${escapeHtml(owner)}</div>
+              </div>
+            </div>
+            <div class="card-description">${escapeHtml(description)}</div>
+            <div class="card-stats">
+              <span class="stat">
+                <span class="stat-star">★</span> ${formatNumber(stars)}
+              </span>
+              <span class="stat">
+                <span class="stat-download">↓</span> ${formatNumber(downloads)}
+              </span>
+            </div>
+            ${version ? `
+              <div class="card-version">
+                <span class="version-tag">${escapeHtml(version)}</span>
+                ${componentType ? `<span class="component-type">${componentType}</span>` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Show detail view
+    async function showDetail(index) {
+      const result = filteredData[index];
+      const info = result.githubInfo || {};
+      const name = info.name || result.repository.split('/')[1];
+      const owner = result.repository.split('/')[0];
+
+      document.getElementById('detail-title').textContent = name;
+      document.getElementById('detail-description').textContent = info.description || 'No description available';
+
+      // Meta info
+      const stars = info.stargazers_count || 0;
+      const forks = info.forks_count || 0;
+      const downloads = getTotalDownloads(result);
+      document.getElementById('detail-meta').innerHTML = `
+        <span class="stat"><span class="stat-star">★</span> ${formatNumber(stars)} stars</span>
+        <span class="stat">🍴 ${formatNumber(forks)} forks</span>
+        <span class="stat"><span class="stat-download">↓</span> ${formatNumber(downloads)} downloads</span>
+        ${info.language ? `<span class="stat">📝 ${info.language}</span>` : ''}
+      `;
+
+      // Links
+      document.getElementById('detail-links').innerHTML = `
+        <a href="${info.html_url || `https://github.com/${result.repository}`}" target="_blank">
+          GitHub →
+        </a>
+        ${info.homepage ? `<a href="${info.homepage}" target="_blank">Homepage →</a>` : ''}
+      `;
+
+      // Releases
+      const releasesList = document.getElementById('releases-list');
+      if (result.releases && result.releases.length > 0) {
+        releasesList.innerHTML = result.releases.map(release => {
+          const gh = release.githubRelease || {};
+          const date = gh.published_at ? new Date(gh.published_at).toLocaleDateString() : '';
+          let releaseDownloads = 0;
+          if (gh.assets) {
+            for (const asset of gh.assets) {
+              releaseDownloads += asset.download_count || 0;
+            }
+          }
+          return `
+            <div class="release-item">
+              <span class="release-tag">${escapeHtml(release.tagName)}</span>
+              <span class="release-date">${date}</span>
+              <span class="release-downloads">↓ ${formatNumber(releaseDownloads)}</span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        releasesList.innerHTML = '<p>No releases available.</p>';
+      }
+
+      // Show overlay
+      document.getElementById('detail-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Load README
+      await loadReadme(owner, name, info.default_branch || 'main');
+    }
+
+    // Load README from GitHub
+    async function loadReadme(owner, repo, branch) {
+      const readmeContent = document.getElementById('readme-content');
+      readmeContent.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading README...</p>
+        </div>
+      `;
+
+      try {
+        // Try common README filenames
+        const filenames = ['README.md', 'readme.md', 'Readme.md', 'README.MD'];
+        let content = null;
+
+        for (const filename of filenames) {
+          try {
+            const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${filename}`;
+            const response = await fetch(url);
+            if (response.ok) {
+              content = await response.text();
+              break;
+            }
+          } catch (e) {
+            // Try next filename
+          }
+        }
+
+        if (content) {
+          // Convert relative image URLs to absolute
+          const baseUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/`;
+          content = content.replace(/!\[([^\]]*)\]\((?!http)([^)]+)\)/g, `![$1](${baseUrl}$2)`);
+
+          readmeContent.innerHTML = marked.parse(content);
+        } else {
+          readmeContent.innerHTML = '<p>No README found.</p>';
+        }
+      } catch (error) {
+        readmeContent.innerHTML = `<p>Failed to load README: ${error.message}</p>`;
+      }
+    }
+
+    // Close detail view
+    function closeDetail(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById('detail-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Show grid (go back from detail)
+    function showGrid() {
+      closeDetail();
+    }
+
+    // Search functionality
+    document.getElementById('search').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+
+      if (!query) {
+        filteredData = data?.results || [];
+      } else {
+        filteredData = (data?.results || []).filter(result => {
+          const info = result.githubInfo || {};
+          const name = (info.name || result.repository).toLowerCase();
+          const description = (info.description || '').toLowerCase();
+          const topics = (info.topics || []).join(' ').toLowerCase();
+          return name.includes(query) || description.includes(query) || topics.includes(query);
+        });
+      }
+
+      renderGrid();
+      renderStats();
+    });
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDetail();
+      }
+    });
+
+    // Load data on page load
+    loadData();
+  </script>
+</body>
+</html>

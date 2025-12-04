@@ -161,15 +161,12 @@
     .card-icon {
       width: 48px;
       height: 48px;
-      background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      font-size: 1.2rem;
       flex-shrink: 0;
+    }
+
+    .card-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .card-title {
@@ -686,12 +683,36 @@
         const downloads = getTotalDownloads(result);
         const version = getLatestVersion(result);
         const componentType = getComponentType(result);
-        const initial = name.charAt(0).toUpperCase();
+        const avatarUrl = `https://github.com/${owner}.png?size=40`;
 
         return `
           <div class="card" onclick="showDetail(${index})">
             <div class="card-header">
-              <div class="card-icon">${initial}</div>
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 42 42">
+                  <defs>
+                    <clipPath id="avatar-clip-${index}">
+                      <circle cx="34" cy="34" r="7"/>
+                    </clipPath>
+                    <filter id="icon-shadow-${index}" width="31" height="30" x="4" y="6" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+                      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                      <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+                      <feOffset dy="2"/>
+                      <feGaussianBlur stdDeviation=".5"/>
+                      <feComposite in2="hardAlpha" operator="out"/>
+                      <feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0"/>
+                      <feBlend in2="BackgroundImageFix" mode="multiply" result="effect1_dropShadow"/>
+                      <feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+                    </filter>
+                  </defs>
+                  <rect width="42" height="42" fill="#5C5D5F" rx="8"/>
+                  <g filter="url(#icon-shadow-${index})">
+                    <path fill="#F1F7FF" d="M12.155 33c-.307 0-.602-.118-.82-.33a1.108 1.108 0 0 1-.34-.795v-6.003c-.636.294-1.53.42-2.233.366a4.152 4.152 0 0 1-1.693-.495 4.02 4.02 0 0 1-1.315-1.147 3.875 3.875 0 0 1-.688-1.58 3.821 3.821 0 0 1 .07-1.713c.152-.559.43-1.079.814-1.522a4.048 4.048 0 0 1 1.404-1.042 4.165 4.165 0 0 1 1.728-.364c.597.004 1.375.134 1.914.383v-5.633c0-.298.122-.584.34-.795.217-.211.512-.33.82-.33h6.58c-.304-.617-.434-1.67-.378-2.352a3.85 3.85 0 0 1 .51-1.642 3.98 3.98 0 0 1 1.183-1.275 4.127 4.127 0 0 1 1.629-.667 4.182 4.182 0 0 1 1.766.067 4.104 4.104 0 0 1 1.57.79c.457.372.824.837 1.074 1.362.25.525.379 1.097.375 1.676-.003.578-.138 1.52-.395 2.041h6.77c.288 0 .603.119.82.33.218.21.34.497.34.795v5.633a4.109 4.109 0 0 0-2.044-.365 4.152 4.152 0 0 0-1.693.495 4.02 4.02 0 0 0-1.315 1.146 3.874 3.874 0 0 0-.688 1.58 3.82 3.82 0 0 0 .07 1.713c.153.56.43 1.08.814 1.522.384.443.863.8 1.405 1.042A4.166 4.166 0 0 0 34 25.872v6.003c0 .299-.122.585-.34.796a1.18 1.18 0 0 1-.82.329H12.155Z"/>
+                  </g>
+                  <circle cx="34" cy="34" r="8" fill="var(--bg-card)" stroke="var(--border-color)" stroke-width="1"/>
+                  <image href="${avatarUrl}" x="27" y="27" width="14" height="14" clip-path="url(#avatar-clip-${index})" preserveAspectRatio="xMidYMid slice"/>
+                </svg>
+              </div>
               <div>
                 <div class="card-title">${escapeHtml(name)}</div>
                 <div class="card-owner">${escapeHtml(owner)}</div>

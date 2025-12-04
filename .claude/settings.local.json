@@ -7,7 +7,9 @@
       "Bash(npm run build:*)",
       "Bash(npm run start:*)",
       "Bash(npm run validate:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

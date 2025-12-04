@@ -1,0 +1,56 @@
+name: Validate New Repositories
+
+on:
+  push:
+    paths:
+      - 'github.txt'
+  pull_request:
+    paths:
+      - 'github.txt'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get added repositories
+        id: diff
+        run: |
+          # Get the list of added lines in github.txt
+          if git diff HEAD~1 --name-only | grep -q "github.txt"; then
+            ADDED_REPOS=$(git diff HEAD~1 -- github.txt | grep "^+" | grep -v "^+++" | sed 's/^+//' | grep -v "^#" | grep -v "^$" | tr '\n' ' ')
+          else
+            # For new file or first commit
+            ADDED_REPOS=$(cat github.txt | grep -v "^#" | grep -v "^$" | tr '\n' ' ')
+          fi
+          echo "repos=$ADDED_REPOS" >> $GITHUB_OUTPUT
+          echo "Added repositories: $ADDED_REPOS"
+
+      - name: Validate new repositories
+        if: steps.diff.outputs.repos != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Validate each added repository
+          for repo in ${{ steps.diff.outputs.repos }}; do
+            echo "Validating $repo..."
+            npx tsx src/index.ts --repo "$repo" --token "$GITHUB_TOKEN"
+          done
+
+      - name: No new repositories
+        if: steps.diff.outputs.repos == ''
+        run: echo "No new repositories to validate"
